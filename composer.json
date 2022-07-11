@@ -1,0 +1,29 @@
+{
+    "name": "qc/qc-ws-preview-lang",
+    "description": "This extension allow you to set the default key language for the workspace language",
+    "type": "typo3-cms-extension",
+    "authors": [],
+    "keywords": [
+        "TYPO3 CMS",
+        "Workspace",
+        "Language",
+        "Backend Translate",
+        "Backend",
+        "Pages"
+    ],"license": [
+        "GPL-2.0-or-later"
+    ],
+    "require": {
+        "typo3/cms-core": "^10.4 || ^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Qc\\QcWsPreviewLang\\": "Classes/"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "qc_ws_preview_lang"
+        }
+    }
+}

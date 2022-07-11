@@ -1,0 +1,9 @@
+plugin.tx_qc_ws_preview_lang{
+
+     # set the ISO key of the language it will be in two char
+     # For example if it is French just set fr, is Deutch set de, ...
+     # for default language just set default
+
+    used_language = {$plugin.tx_qc_ws_preview_lang.used_language}
+
+}

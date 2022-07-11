@@ -1,0 +1,3 @@
+plugin.tx_qc_ws_preview_lang{
+    used_language = default
+}
