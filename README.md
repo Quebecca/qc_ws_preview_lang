@@ -15,9 +15,9 @@ plugin.tx_qc_ws_preview_lang{
 
 ## Documentation française
 
-Cette extension permet de changer la langue par défaut du message de prévisualisation des espaces de travail (le message en jaune en haut à droite). Habituellement, pour un utilisateur de lien de prévisualisation, le message appraît en anglis s'il n'est pas connecté en BE. La langue configurée doit être installée pour fonctionner.
+Cette extension permet de changer la langue par défaut du message de prévisualisation des espaces de travail (le message en jaune en haut à droite). Habituellement, pour un utilisateur de lien de prévisualisation, le message appraît en anglais s'il n'est pas connecté en BE. La langue configurée doit être installée pour fonctionner.
 
-Utiliserles codes ISO de 2 lettres. Si la aleur n'existe pas, l'anglais sera utilisé pour le message.
+Utiliser les codes ISO de 2 lettres. Si la valeur n'existe pas, l'anglais sera utilisé pour le message.
 
 ```bash
 plugin.tx_qc_ws_preview_lang{
