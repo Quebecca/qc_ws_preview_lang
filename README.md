@@ -6,11 +6,11 @@ This extension allow you to change the default language of the preview message i
 
 Use the ISO code 2 letters language. If the value doesn't exist, it will revert to default/English.
 
+To use a different language in FE, you must add the TS CONSTANT in the template, with the 2 letter language you want like this:
 
 ```bash
-plugin.tx_qc_ws_preview_lang{
-    used_language = fr
-}
+# In CONSTANT
+plugin.tx_qc_ws_preview_lang.used_language = fr
 ```
 
 ## Documentation française
@@ -19,8 +19,9 @@ Cette extension permet de changer la langue par défaut du message de prévisual
 
 Utiliser les codes ISO de 2 lettres. Si la valeur n'existe pas, l'anglais sera utilisé pour le message.
 
+Pour utiliser une langue différente en FE, vous devez ajouter une valeur dans la section CONSTANTE comme ceci dans le gabarit TS:
+
 ```bash
-plugin.tx_qc_ws_preview_lang{
-    used_language = fr
-}
+# Dans la section CONSTANTE
+plugin.tx_qc_ws_preview_lang.used_language = fr
 ```
