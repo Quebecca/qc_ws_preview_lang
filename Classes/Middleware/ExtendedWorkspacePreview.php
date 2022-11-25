@@ -21,10 +21,12 @@ use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Backend\FrontendBackendUserAuthentication;
 use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Routing\RouteResultInterface;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -74,7 +76,10 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
      */
     protected function getLogoutTemplateMessage(UriInterface $currentUrl): string
     {
+
         $langService = LanguageService::create($this->usedLanguage);
+        $this->getLanguageIdByIsoCode($this->usedLanguage);
+
         $currentUrl = $this->removePreviewParameterFromUrl($currentUrl);
         if ($GLOBALS['TYPO3_CONF_VARS']['FE']['workspacePreviewLogoutTemplate']) {
             $templateFile = GeneralUtility::getFileAbsFileName($GLOBALS['TYPO3_CONF_VARS']['FE']['workspacePreviewLogoutTemplate']);
@@ -92,7 +97,6 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
         }
         return sprintf($message, htmlspecialchars((string)$currentUrl));
     }
-
 
 
     /**
@@ -190,6 +194,18 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
         return $response;
     }
 
-
-
+    public function getLanguageIdByIsoCode(string $code){
+        $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+        $queryBuilder =  $connectionPool->getQueryBuilderForTable('sys_language');
+        if($code == 'en')
+            $code = 'default';
+        return $queryBuilder
+            ->select('uid')
+            ->from('sys_language')
+            ->where(
+                $queryBuilder->expr()->eq('language_isocode', $queryBuilder->createNamedParameter($code, \PDO::PARAM_STR)),
+            )
+            ->execute()
+            ->fetchOne();
+    }
 }
