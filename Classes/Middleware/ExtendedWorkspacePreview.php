@@ -25,8 +25,10 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Http\Stream;
+use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Routing\RouteResultInterface;
 use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -40,23 +42,15 @@ use TYPO3\CMS\Workspaces\Middleware\WorkspacePreview;
 
 class ExtendedWorkspacePreview extends WorkspacePreview{
 
-    /**
-     * Inject UriBuilder
-     * @param UriBuilder $uriBuilder
-     */
-    public function injectUriBuilder(UriBuilder $uriBuilder)
-    {
-        $this->uriBuilder = $uriBuilder;
-    }
 
     protected string $usedLanguage='';
+    protected int $currentPage = 1;
     /**
      * @return \TYPO3\CMS\Core\Localization\LanguageService
      * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
      */
     protected function getLanguageService(): LanguageService
     {
-
         $configurationManager= GeneralUtility::makeInstance(ConfigurationManager::class);
         $typoScriptConfiguration = $configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,'qc_ws_preview_lang','tx_qc_ws_preview_lang');
         if(array_key_exists('used_language', $typoScriptConfiguration)){
@@ -77,8 +71,15 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
     protected function getLogoutTemplateMessage(UriInterface $currentUrl): string
     {
 
+
+        $site = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId((int)$this->currentPage);
+        $associatedResult = $this->getAssociatedPageUid($this->currentPage,$this->usedLanguage);
+        $siteLanguage = $associatedResult['slUid'];
+        $pageUid  = $associatedResult['uid'];
+        $uri = $site->getRouter()->generateUri($pageUid, ['_language' => $siteLanguage]);
+        $url = $currentUrl->getScheme().'://'.$currentUrl->getHost().$uri;
+
         $langService = LanguageService::create($this->usedLanguage);
-        $this->getLanguageIdByIsoCode($this->usedLanguage);
 
         $currentUrl = $this->removePreviewParameterFromUrl($currentUrl);
         if ($GLOBALS['TYPO3_CONF_VARS']['FE']['workspacePreviewLogoutTemplate']) {
@@ -93,9 +94,9 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
         } else {
             $message = $langService->sL('LLL:EXT:workspaces/Resources/Private/Language/locallang_mod.xlf:previewLogoutSuccess');
             $message = htmlspecialchars($message);
-            $message = sprintf($message, '<a href="' . htmlspecialchars((string)$currentUrl) . '">', '</a>');
+            $message = sprintf($message, '<a href="' . htmlspecialchars((string)$url) . '">', '</a>');
         }
-        return sprintf($message, htmlspecialchars((string)$currentUrl));
+        return sprintf($message, htmlspecialchars((string)$url));
     }
 
 
@@ -125,7 +126,8 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
         if ($GLOBALS['TSFE'] instanceof TypoScriptFrontendController && $GLOBALS['TSFE']->isOutputting(true) && $context->getPropertyFromAspect('workspace', 'isOffline', false)) {
             $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
             $typoScriptConfiguration = $configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK, 'qc_ws_preview_lang', 'tx_qc_ws_preview_lang');
-            $this->usedLanguage = $typoScriptConfiguration['used_language'];
+            $this->usedLanguage = $typoScriptConfiguration['used_language'] ?? '';
+            $this->currentPage = $GLOBALS['TSFE']->id;
         }
         // First, if a Log out is happening, a custom HTML output page is shown and the request exits with removing
         // the cookie for the backend preview.
@@ -194,18 +196,41 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
         return $response;
     }
 
-    public function getLanguageIdByIsoCode(string $code){
+    public function getAssociatedPageUid($pageUid, $langCode){
+        // uid de la page
+        // lang, uid or pid
+        /*
+        select pages.uid
+        from pages
+        where uid = $uid
+        OR pid = $uid
+        inner join sys_language
+        on
+        sys_language.code  = $code
+        */
         $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-        $queryBuilder =  $connectionPool->getQueryBuilderForTable('sys_language');
-        if($code == 'en')
-            $code = 'default';
-        return $queryBuilder
-            ->select('uid')
-            ->from('sys_language')
-            ->where(
-                $queryBuilder->expr()->eq('language_isocode', $queryBuilder->createNamedParameter($code, \PDO::PARAM_STR)),
-            )
-            ->execute()
-            ->fetchOne();
+        $queryBuilder =  $connectionPool->getQueryBuilderForTable('pages');
+
+        return  $queryBuilder
+                    ->select('pages.uid', 'sl.uid AS slUid')
+                    ->from('pages')
+                    ->join(
+                        'pages',
+                        'sys_language',
+                        'sl',
+                        "sl.language_isocode like '$langCode'"
+                    )
+                    ->orWhere(
+                        $queryBuilder->expr()->eq(
+                            'pages.uid',
+                            $queryBuilder->createNamedParameter($pageUid,\PDO::PARAM_INT)),
+                        $queryBuilder->expr()->eq(
+                            'pages.pid',
+                            $queryBuilder->createNamedParameter($pageUid,\PDO::PARAM_INT)),
+                    )
+                    ->execute()
+                    ->fetchAssociative();
+
+
     }
 }
