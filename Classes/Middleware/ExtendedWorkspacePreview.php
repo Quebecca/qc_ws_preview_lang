@@ -42,8 +42,6 @@ use TYPO3\CMS\Workspaces\Middleware\WorkspacePreview;
 
 class ExtendedWorkspacePreview extends WorkspacePreview{
 
-    // @todo : Case where fr (default lang)
-    // @todo : Case where no page associated to the selected language
     protected string $usedLanguage='';
     protected int $currentPage = 1;
     /**
@@ -209,10 +207,11 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
         on
         sys_language.code  = $code
         */
+
         $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
         $queryBuilder =  $connectionPool->getQueryBuilderForTable('pages');
 
-        return  $queryBuilder
+        $result =   $queryBuilder
                     ->select('pages.uid', 'sl.uid AS slUid')
                     ->from('pages')
                     ->join(
@@ -232,6 +231,11 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
                     ->execute()
                     ->fetchAssociative();
 
+        if($result == false){
 
+            $result['uid'] = $pageUid;
+            $result['slUid'] = 0;
+        }
+        return $result;
     }
 }
