@@ -42,7 +42,8 @@ use TYPO3\CMS\Workspaces\Middleware\WorkspacePreview;
 
 class ExtendedWorkspacePreview extends WorkspacePreview{
 
-
+    // @todo : Case where fr (default lang)
+    // @todo : Case where no page associated to the selected language
     protected string $usedLanguage='';
     protected int $currentPage = 1;
     /**
