@@ -45,15 +45,12 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
     protected string $usedLanguage='';
     protected int $currentPage = 1;
     /**
-     * @return \TYPO3\CMS\Core\Localization\LanguageService
-     * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
+     * @return LanguageService
      */
     protected function getLanguageService(): LanguageService
     {
-        $configurationManager= GeneralUtility::makeInstance(ConfigurationManager::class);
-        $typoScriptConfiguration = $configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,'qc_ws_preview_lang','tx_qc_ws_preview_lang');
-        if(array_key_exists('used_language', $typoScriptConfiguration)){
-            $langService = LanguageService::create($typoScriptConfiguration['used_language']);
+        if($this->usedLanguage !== ''){
+            $langService = LanguageService::create($this->usedLanguage);
             return  $langService;
         }
         return $GLOBALS['LANG'] ?: LanguageService::create('default');
@@ -69,10 +66,9 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
      */
     protected function getLogoutTemplateMessage(UriInterface $currentUrl): string
     {
-
-
         $site = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId((int)$this->currentPage);
         $associatedResult = $this->getAssociatedPageUid($this->currentPage,$this->usedLanguage);
+
         $siteLanguage = $associatedResult['slUid'];
         $pageUid  = $associatedResult['uid'];
         $uri = $site->getRouter()->generateUri($pageUid, ['_language' => $siteLanguage]);
@@ -122,12 +118,9 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
         $context = GeneralUtility::makeInstance(Context::class);
 
         $response = $handler->handle($request);
-        if ($GLOBALS['TSFE'] instanceof TypoScriptFrontendController && $GLOBALS['TSFE']->isOutputting(true) && $context->getPropertyFromAspect('workspace', 'isOffline', false)) {
-            $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
-            $typoScriptConfiguration = $configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK, 'qc_ws_preview_lang', 'tx_qc_ws_preview_lang');
-            $this->usedLanguage = $typoScriptConfiguration['used_language'] ?? '';
-            $this->currentPage = $GLOBALS['TSFE']->id;
-        }
+
+        $this->usedLanguage = $request->getQueryParams()['pageLang'] ?? '';
+        $this->currentPage = $GLOBALS['TSFE']->id;
         // First, if a Log out is happening, a custom HTML output page is shown and the request exits with removing
         // the cookie for the backend preview.
         if ($keyword === 'LOGOUT') {
@@ -192,6 +185,19 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
         if ($setCookieOnCurrentRequest) {
             $response = $this->addCookie($keyword, $normalizedParams, $response);
         }
+
+
+     /*
+        $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
+        $typoScriptConfiguration = $configurationManager->getConfiguration(
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
+            'qc_ws_preview_lang',
+            'tx_qc_ws_preview_lang'
+        );
+        $usedLanguage = $typoScriptConfiguration['plugin.']['tx_qc_ws_preview_lang.']['used_language'] ?? '';
+        debug($typoScriptConfiguration);
+     */
+
         return $response;
     }
 
