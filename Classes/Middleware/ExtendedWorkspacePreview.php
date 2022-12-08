@@ -72,7 +72,7 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
         $siteLanguage = $associatedResult['slUid'];
         $pageUid  = $associatedResult['uid'];
         $uri = $site->getRouter()->generateUri($pageUid, ['_language' => $siteLanguage]);
-        $url = $currentUrl->getScheme().'://'.$currentUrl->getHost().$uri;
+        $url = $currentUrl->getScheme().'://'.$currentUrl->getHost().$uri.'?pageLang='.$this->usedLanguage;
 
         $langService = LanguageService::create($this->usedLanguage);
 
@@ -200,6 +200,74 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
 
         return $response;
     }
+
+    /**
+     * Code regarding adding a custom preview message, when previewing a workspace
+     */
+
+    /**
+     * Renders a message at the bottom of the HTML page, can be modified via
+     *
+     *   config.disablePreviewNotification = 1 (to disable the additional info text)
+     *
+     * and
+     *
+     *   config.message_preview_workspace = This is not the online version but the version of "%s" workspace (ID: %s).
+     *
+     * via TypoScript.
+     *
+     * @param TypoScriptFrontendController $tsfe
+     * @param UriInterface $currentUrl
+     * @return string
+     */
+    protected function renderPreviewInfo(TypoScriptFrontendController $tsfe, UriInterface $currentUrl): string
+    {
+        $content = '';
+        if (!isset($tsfe->config['config']['disablePreviewNotification']) || (int)$tsfe->config['config']['disablePreviewNotification'] !== 1) {
+            // get the title of the current workspace
+            $currentWorkspaceId = $tsfe->whichWorkspace();
+            $currentWorkspaceTitle = $this->getWorkspaceTitle($currentWorkspaceId);
+            $currentWorkspaceTitle = htmlspecialchars($currentWorkspaceTitle);
+            if ($tsfe->config['config']['message_preview_workspace']) {
+                $content = sprintf(
+                    $tsfe->config['config']['message_preview_workspace'],
+                    $currentWorkspaceTitle,
+                    $currentWorkspaceId ?? -99
+                );
+
+            } else {
+
+                $text = $this->getLanguageService()->sL('LLL:EXT:workspaces/Resources/Private/Language/locallang_mod.xlf:previewText');
+                $text = htmlspecialchars($text);
+                $text = sprintf($text, $currentWorkspaceTitle, $currentWorkspaceId ?? -99);
+                $stopPreviewText = $this->getLanguageService()->sL('LLL:EXT:workspaces/Resources/Private/Language/locallang_mod.xlf:stopPreview');
+                $stopPreviewText = htmlspecialchars($stopPreviewText);
+                if ($GLOBALS['BE_USER'] instanceof PreviewUserAuthentication) {
+                    $urlForStoppingPreview = (string)$this->removePreviewParameterFromUrl($currentUrl, 'LOGOUT');
+                    $text .= '<br><a style="color: #000; pointer-events: visible;" href="' . htmlspecialchars($urlForStoppingPreview) . '">' . $stopPreviewText . '</a>';
+                }
+                $styles = [];
+                $styles[] = 'position: fixed';
+                $styles[] = 'top: 15px';
+                $styles[] = 'right: 15px';
+                $styles[] = 'padding: 8px 18px';
+                $styles[] = 'background: #fff3cd';
+                $styles[] = 'border: 1px solid #ffeeba';
+                $styles[] = 'font-family: sans-serif';
+                $styles[] = 'font-size: 14px';
+                $styles[] = 'font-weight: bold';
+                $styles[] = 'color: #856404';
+                $styles[] = 'z-index: 20000';
+                $styles[] = 'user-select: none';
+                $styles[] = 'pointer-events: none';
+                $styles[] = 'text-align: center';
+                $styles[] = 'border-radius: 2px';
+                $content = '<div id="typo3-preview-info" style="' . implode(';', $styles) . '">' . $text . '</div>';
+            }
+        }
+        return $content;
+    }
+
 
     public function getAssociatedPageUid($pageUid, $langCode){
         // uid de la page
