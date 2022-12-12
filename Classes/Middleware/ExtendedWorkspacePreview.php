@@ -57,45 +57,6 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
     }
 
     /**
-     * Renders the logout template when the "logout" button was pressed.
-     * Returns a string which can be put into a HttpResponse.
-     *
-     * @param UriInterface $currentUrl
-     * @return string
-     * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
-     */
-    protected function getLogoutTemplateMessage(UriInterface $currentUrl): string
-    {
-        $site = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId((int)$this->currentPage);
-        $associatedResult = $this->getAssociatedPageUid($this->currentPage,$this->usedLanguage);
-
-        $siteLanguage = $associatedResult['slUid'];
-        $pageUid  = $associatedResult['uid'];
-        $uri = $site->getRouter()->generateUri($pageUid, ['_language' => $siteLanguage]);
-        $url = $currentUrl->getScheme().'://'.$currentUrl->getHost().$uri.'?pageLang='.$this->usedLanguage;
-
-        $langService = LanguageService::create($this->usedLanguage);
-
-        $currentUrl = $this->removePreviewParameterFromUrl($currentUrl);
-        if ($GLOBALS['TYPO3_CONF_VARS']['FE']['workspacePreviewLogoutTemplate']) {
-            $templateFile = GeneralUtility::getFileAbsFileName($GLOBALS['TYPO3_CONF_VARS']['FE']['workspacePreviewLogoutTemplate']);
-            if (@is_file($templateFile)) {
-                $message = (string)file_get_contents($templateFile);
-            } else {
-                $message = $langService->sL('LLL:EXT:workspaces/Resources/Private/Language/locallang_mod.xlf:previewLogoutError');
-                $message = htmlspecialchars($message);
-                $message = sprintf($message, '<strong>', '</strong><br>', $templateFile);
-            }
-        } else {
-            $message = $langService->sL('LLL:EXT:workspaces/Resources/Private/Language/locallang_mod.xlf:previewLogoutSuccess');
-            $message = htmlspecialchars($message);
-            $message = sprintf($message, '<a href="' . htmlspecialchars((string)$url) . '">', '</a>');
-        }
-        return sprintf($message, htmlspecialchars((string)$url));
-    }
-
-
-    /**
      * Initializes a possible preview user (by checking for GET/cookie of name "ADMCMD_prev")
      *
      * The GET parameter "ADMCMD_prev=LIVE" can be used to preview a live workspace from the backend even if the
@@ -120,7 +81,7 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
         $response = $handler->handle($request);
 
         $this->usedLanguage = $request->getQueryParams()['pageLang'] ?? '';
-        $this->currentPage = $GLOBALS['TSFE']->id;
+
         // First, if a Log out is happening, a custom HTML output page is shown and the request exits with removing
         // the cookie for the backend preview.
         if ($keyword === 'LOGOUT') {
@@ -270,18 +231,6 @@ class ExtendedWorkspacePreview extends WorkspacePreview{
 
 
     public function getAssociatedPageUid($pageUid, $langCode){
-        // uid de la page
-        // lang, uid or pid
-        /*
-        select pages.uid
-        from pages
-        where uid = $uid
-        OR pid = $uid
-        inner join sys_language
-        on
-        sys_language.code  = $code
-        */
-
         $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
         $queryBuilder =  $connectionPool->getQueryBuilderForTable('pages');
 
