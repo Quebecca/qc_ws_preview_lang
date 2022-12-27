@@ -88,14 +88,7 @@ class PreviewUriBuilder
                 $language = $site->getDefaultLanguage();
             }
 
-            $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
-            $typoScriptConfiguration = $configurationManager->getConfiguration(
-                ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT,
-                'qc_ws_preview_lang',
-                'tx_qc_ws_preview_lang'
-            );
-            $usedLanguage = $typoScriptConfiguration['plugin.']['tx_qc_ws_preview_lang.']['used_language'] ?? '';
-
+            $usedLanguage = BackendUtility::getPagesTSconfig($uid)['mod.']['qcWsPreviewLang.']['used_lang'];
             $uri = $site->getRouter()->generateUri($uid, ['pageLang'=> $usedLanguage, 'ADMCMD_prev' => $previewKeyword, '_language' => $language], '');
             return (string)$uri;
         } catch (SiteNotFoundException | InvalidRouteArgumentsException $e) {
