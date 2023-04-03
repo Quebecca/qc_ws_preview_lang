@@ -6,7 +6,7 @@ This extension allow you to change the default language of the preview message i
 
 Use the ISO code 2 letters language. If the value doesn't exist, it will revert to default/English.
 
-To use a different language in FE, you must add the TSConfig configuration, with the 2 letter language you want like this:
+To use a different language in FE, you must add the TSconfig configuration, with the 2 letter language you want like this:
 
 ```bash
   mod.qcWsPreviewLang.used_lang = fr
@@ -18,7 +18,7 @@ Cette extension permet de changer la langue par défaut du message de prévisual
 
 Utiliser les codes ISO de 2 lettres. Si la valeur n'existe pas, l'anglais sera utilisé pour le message.
 
-Pour utiliser une langue différente en FE, vous devez ajouter une valeur dans la configuration TSConfig:
+Pour utiliser une langue différente en FE, vous devez ajouter une valeur dans la configuration TSconfig:
 
 ```bash
   mod.qcWsPreviewLang.used_lang = fr
