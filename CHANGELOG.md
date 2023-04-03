@@ -1,10 +1,10 @@
-# Qc workspace preview language
+# Qc Workspace Preview Language
 
 ## Change log v1.1.0
 
 ### Breaking
-- 2023-03-27 [!!!][TASK] Use TsConfig instead of TypoScript to set the used language iso-code for the preview workspace message
+- 2023-03-27 [!!!] Use TSconfig instead of TypoScript to set the iso-code language for the Preview Workspace message.
 
 
 ### TASK
-- 2023-03-27 [FEATURE] Detect the used language from the TsConfig and translate the text of go back to live page from preview workspace
+- 2023-03-27 [FEATURE] Detect the used language from the TSconfig instead of TS and translate the text to go back to live page from Preview Workspace.
