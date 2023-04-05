@@ -12,12 +12,10 @@ namespace Qc\QcWsPreviewLang\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Workspaces\Middleware\WorkspacePreview;
 
-class ExtendedWorkspacePreview extends WorkspacePreview {
+class ExtendedWorkspacePreviewV10 extends WorkspacePreview{
 
     /**
      * @var string
@@ -34,11 +32,11 @@ class ExtendedWorkspacePreview extends WorkspacePreview {
      */
     protected function getLanguageService(): LanguageService
     {
-        $localServiceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
         if($this->usedLanguage !== ''){
-            return $localServiceFactory->create($this->usedLanguage);
+            $langService = LanguageService::create($this->usedLanguage);
+            return  $langService;
         }
-        return $GLOBALS['LANG'] ?: $localServiceFactory->create('default');
+        return $GLOBALS['LANG'] ?: LanguageService::create('default');
     }
 
     /**
