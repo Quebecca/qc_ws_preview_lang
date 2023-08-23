@@ -9,9 +9,10 @@ $EM_CONF[$_EXTKEY] = [
     'state' => 'beta',
     'createDirs' => '',
     'clearCacheOnLoad' => 0,
-    'version' => '1.1.0',
+    'version' => '1.1.1',
     'constraints' => [
         'depends' => [
+            'php' => '7.4-8.2',
             'typo3' => '10.4.0-11.5.99',
         ],
     ],
