@@ -13,6 +13,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Workspaces\Middleware\WorkspacePreview;
 
 class ExtendedWorkspacePreviewV10 extends WorkspacePreview{
@@ -32,11 +34,11 @@ class ExtendedWorkspacePreviewV10 extends WorkspacePreview{
      */
     protected function getLanguageService(): LanguageService
     {
+        $langServiceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
         if($this->usedLanguage !== ''){
-            $langService = LanguageService::create($this->usedLanguage);
-            return  $langService;
+            return $langServiceFactory->create($this->usedLanguage);
         }
-        return $GLOBALS['LANG'] ?: LanguageService::create('default');
+        return $GLOBALS['LANG'] ?: $langServiceFactory->create('default');
     }
 
     /**
