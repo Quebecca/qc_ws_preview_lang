@@ -7,10 +7,10 @@ $EM_CONF[$_EXTKEY] = [
     'author' => 'Quebec.ca',
     'author_company' => 'Québec',
     'state' => 'beta',
-    'version' => '1.1.0',
+    'version' => '2.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '10.4.0-11.5.99',
+            'typo3' => '11.5.99-12.9.99',
         ],
     ],
     'autoload' => [
