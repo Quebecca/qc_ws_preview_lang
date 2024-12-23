@@ -1,5 +1,8 @@
 # Qc Workspace Preview Language
 
+## Change log v2.0.1
+- 2024-12-23 [Fix] Bug fixes.
+
 ## Change log v2.0.0
 - 2024-12-23 [FEATURE] Add Support for Typo3 V12.
 
