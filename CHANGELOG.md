@@ -4,23 +4,6 @@
 
 **This extension will NOT be available for TYPO3 v13 or higher.**
 
-### Reason
-Starting with **TYPO3 v13**, the core class`TYPO3\CMS\Workspaces\Middleware\WorkspacePreview`is declared as **final**, which makes class overriding impossible.
-
-Since this extension relies on overriding the Workspace Preview behavior, it **cannot be technically supported** anymore.
-
-👉 **The last supported TYPO3 version is: TYPO3 v12 (LTS)**  
-👉 **No further updates are planned beyond v12**
-
-## Compatibility
-
-| TYPO3 Version | Supported |
-|--------------|-----------|
-| TYPO3 v11    | ❌ No |
-| TYPO3 v12    | ✅ Yes (last supported version) |
-| TYPO3 v13+   | ❌ No (final classes prevent override) |
-
----
 
 ## Change Log
 
